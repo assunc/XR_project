@@ -378,10 +378,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   particlePrefab: {fileID: 8476201344545304790, guid: 3dfae9a76c57ab249a82483b00e17082, type: 3}
-  numParticles: 20
-  spawnRadius: 5
-  moveSpeed: 1
+  numParticles: 40
+  spawnRadius: 2
+  moveSpeed: 7
   enclosure: {fileID: 38446170}
+  gravity: 9.8
+  spawnPattern: 3
+  spawnPosition: {x: 0, y: -20, z: 0}
+  spawnDimensions: {x: 5, y: 3, z: 2}
 --- !u!4 &372350068
 Transform:
   m_ObjectHideFlags: 0
