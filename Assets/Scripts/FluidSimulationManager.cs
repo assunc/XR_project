@@ -70,7 +70,8 @@ public class FluidSimulationManager : MonoBehaviour
         {
             positions[i] = enclosureBounds.center + Random.insideUnitSphere * spawnRadius;
             // Give initial velocity
-            velocities[i] = Random.insideUnitSphere * moveSpeed;
+            velocities[i] = Vector3.zero * moveSpeed;
+            // velocities[i] = Random.insideUnitSphere * moveSpeed;
             particles[i] = Instantiate(particlePrefab, positions[i], Quaternion.identity);
         }
     }
@@ -95,11 +96,7 @@ public class FluidSimulationManager : MonoBehaviour
                     
                     positions[index] = spawnPosition + offset;
                     // Small initial velocity
-                    velocities[index] = new Vector3(
-                        Random.Range(-0.1f, 0.1f),
-                        Random.Range(-0.1f, 0.1f),
-                        Random.Range(-0.1f, 0.1f)
-                    ) * moveSpeed;
+                    velocities[index] = Vector3.zero * moveSpeed;
                     
                     particles[index] = Instantiate(particlePrefab, positions[index], Quaternion.identity);
                     index++;
@@ -126,7 +123,7 @@ public class FluidSimulationManager : MonoBehaviour
             Vector3 pos = new Vector3(x, y, z) * spawnRadius;
             positions[i] = spawnPosition + pos;
             // Small inward velocity
-            velocities[i] = -pos.normalized * moveSpeed * 0.2f;
+            velocities[i] = Vector3.zero;
             particles[i] = Instantiate(particlePrefab, positions[i], Quaternion.identity);
         }
     }
@@ -149,7 +146,7 @@ public class FluidSimulationManager : MonoBehaviour
             
             positions[i] = pos;
             // Small initial downward velocity
-            velocities[i] = new Vector3(0, -0.1f, 0) * moveSpeed;
+            velocities[i] = Vector3.zero * moveSpeed;
             particles[i] = Instantiate(particlePrefab, positions[i], Quaternion.identity);
         }
     }
@@ -204,6 +201,22 @@ public class FluidSimulationManager : MonoBehaviour
             particles[i].transform.position = positions[i];
         }
     }
+
+    // void HandleCollision()
+    // {
+    //     for (int i=0; i<numParticles; i++)
+    //     {
+    //         for (int j=i+1; j<numParticles; j++) 
+    //         {
+    //             Vector3 direction = particles[j].transform.position - particles[i].transform.position;
+    //             float distance = direction.magnitude;
+    //             if (distance < 2 * particles)
+    //             {
+
+    //             }
+    //         }
+    //     }
+    // }
 
     void OnDrawGizmosSelected()
     {

@@ -8,7 +8,7 @@ public class SimpleFluidParticle : MonoBehaviour
     public float gravity = 9.81f;
     public float radius = 0.5f; // Particle interaction radius
     public float restDensity = 1000f; // Target density
-    public float pressureMultiplier = 10f; // How strongly particles push away
+    public float pressureMultiplier = 1000f; // How strongly particles push away
     public LayerMask particleLayer; // Set this to your fluid particle layer
 
     private Vector3 velocity;
@@ -77,7 +77,7 @@ public class SimpleFluidParticle : MonoBehaviour
             float pressureForce = (density - restDensity) * pressureMultiplier;
             
             // Find nearby particles again
-            Collider[] nearbyParticles = Physics.OverlapSphere(predictedPosition, radius * 2f, particleLayer);
+            Collider[] nearbyParticles = Physics.OverlapSphere(predictedPosition, radius * 0.5f, particleLayer);
             
             Vector3 pressureDirection = Vector3.zero;
             
