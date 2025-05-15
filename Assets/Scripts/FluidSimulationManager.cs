@@ -202,21 +202,22 @@ public class FluidSimulationManager : MonoBehaviour
         }
     }
 
-    // void HandleCollision()
-    // {
-    //     for (int i=0; i<numParticles; i++)
-    //     {
-    //         for (int j=i+1; j<numParticles; j++) 
-    //         {
-    //             Vector3 direction = particles[j].transform.position - particles[i].transform.position;
-    //             float distance = direction.magnitude;
-    //             if (distance < 2 * particles)
-    //             {
+    //TODO: handle collisions implementation
+    void HandleCollision()
+    {
+        for (int i=0; i<numParticles; i++)
+        {
+            for (int j=i+1; j<numParticles; j++) 
+            {
+                Vector3 direction = particles[j].transform.position - particles[i].transform.position;
+                float distance = direction.magnitude;
+                if (distance < 2 * particlePrefab)
+                {
 
-    //             }
-    //         }
-    //     }
-    // }
+                }
+            }
+        }
+    }
 
     void OnDrawGizmosSelected()
     {
