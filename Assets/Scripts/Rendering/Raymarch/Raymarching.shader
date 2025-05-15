@@ -64,12 +64,21 @@ Shader "Fluid/Raymarching"
             const float tileScale;
             const float tileDarkOffset;
 
-            const float4x4 cubeLocalToWorld;
-            const float4x4 cubeWorldToLocal;
-            const float3 floorPos;
-            const float3 floorSize;
+            #define MAX_CUBES 50
+            uniform float4x4 cubesLocalToWorld[MAX_CUBES]; 
+            uniform float4x4  cubesWorldToLocal[MAX_CUBES]; 
+            int cubeCount; 
+
+            // uniform float4x4 cubeLocalToWorld; // Array of local-to-world matrices
+            // uniform float4x4 cubeWorldToLocal; // Array of world-to-local matrices
+            // uniform float4x4 cube2WorldToLocal; 
+            // uniform float4x4 cube2LocalToWorld; .
+
+            // const float3 floorPos;
+            // const float3 floorSize;
             
             static const float3 cubeCol = float3(0.95, 0.3, 0.35);
+            static const float3 cube2Col = float3(0.35, 0.95, 0.35); 
             static const float iorAir = 1;
 
             struct HitInfo
@@ -427,6 +436,7 @@ Shader "Fluid/Raymarching"
 
                 float dstToTest = boundsDstInfo[1] - (TinyNudge) * 2;
 
+                // [loop]
                 for (float dst = 0; dst < dstToTest; dst += stepSize)
                 {
                     bool isLastStep = dst + stepSize >= dstToTest;
@@ -494,6 +504,7 @@ Shader "Fluid/Raymarching"
                 return exp(-thickness * extinctionCoeff);
             }
 
+
             float3 SampleSky(float3 dir)
             {
                 const float3 colGround = float3(0.35, 0.3, 0.35) * 0.53;
@@ -507,15 +518,81 @@ Shader "Fluid/Raymarching"
 
                 return lerp(colGround, skyGradient, groundToSkyT) + sun * (groundToSkyT >= 1);
             }
+            float GetMinDist(HitInfo values[MAX_CUBES])
+            {
+                float minVal = values[0].dst;
+
+                // [loop]
+                for (int i = 0; i < cubeCount; i++)
+                {
+                    if (values[i].dst < minVal)
+                    {
+                        minVal = values[i].dst;
+                    }
+                }
+
+                return minVal;
+            }
 
             float3 SampleEnvironment(float3 pos, float3 dir)
             {
-                HitInfo floorInfo = RayBox(pos, dir, floorPos, floorSize);
-                HitInfo cubeInfo = RayBoxWithMatrix(pos, dir, cubeLocalToWorld, cubeWorldToLocal);
+                // HitInfo floorInfo = RayBox(pos, dir, floorPos, floorSize);
+                HitInfo cubeInfos[MAX_CUBES]; 
+                // [loop]
+                for(int i= 0; i< cubeCount; i++){
+                    cubeInfos[i] = RayBoxWithMatrix(pos, dir, cubesLocalToWorld[i], cubesWorldToLocal[i]);
+                }
+                float minDist = GetMinDist(cubeInfos);
+                // [loop]
+                for(int i= 0; i< cubeCount; i++){
+                    if(cubeInfos[i].didHit && cubeInfos[i].dst == minDist){
+                        return saturate(dot(cubeInfos[i].normal, dirToSun) * 0.5 + 0.5) * cubeCol;
+                    }
+                }
+                
+                // if(floorInfo.didHit && floorInfo.dst < minDist){
+                 
+                //     Choose tileCol based on quadrant
+                //     float3 tileCol = floorInfo.hitPoint.x < 0 ? tileCol1 : tileCol2;
+                //     if (floorInfo.hitPoint.z < 0) tileCol = floorInfo.hitPoint.x < 0 ? tileCol3 : tileCol4;
 
-                if (cubeInfo.didHit && cubeInfo.dst < floorInfo.dst)
+                //     If tile is a dark tile, then darken it
+                //     int2 tileCoord = floor(floorInfo.hitPoint.xz * tileScale);
+                //     bool isDarkTile = Modulo(tileCoord.x, 2) == Modulo(tileCoord.y, 2);
+                //     tileCol = TweakHSV(tileCol, float3(0, 0, tileDarkOffset * isDarkTile));
+
+                //     Vary hue/sat/val randomly
+                //     uint rngState = HashInt2(tileCoord);
+                //     float3 randomVariation = RandomSNorm3(rngState) * tileColVariation * 0.1;
+                //     tileCol = TweakHSV(tileCol, randomVariation);
+
+                //     float3 shadowMap = Transmittance(CalculateDensityAlongRay(floorInfo.hitPoint, _WorldSpaceLightPos0, lightStepSize * 2) * 2);
+                //     bool inShadow; 
+                //     [loop]
+                //     for(int i= 0; i< cubeCount; i++){
+                //         if (RayBoxWithMatrix(floorInfo.hitPoint, dirToSun, cubesLocalToWorld[i], cubesWorldToLocal[i]).didHit) {
+                //             shadowMap *= 0.2;
+                //             break;
+                //         }
+                //     }
+
+                //     bool inShadow = RayBoxWithMatrix(floorInfo.hitPoint, dirToSun, cubeLocalToWorld, cubeWorldToLocal).didHit;
+                //     bool inShadow2 = RayBoxWithMatrix(floorInfo.hitPoint, dirToSun, cube2LocalToWorld, cube2WorldToLocal).didHit;
+                //     if (inShadow || inShadow2) shadowMap *= 0.2;
+                //     return tileCol * shadowMap;
+                // }
+                return SampleSky(dir);
+                
+
+                //HitInfo cubeInfo = RayBoxWithMatrix(pos, dir, cubeLocalToWorld, cubeWorldToLocal);
+                //HitInfo cube2Info = RayBoxWithMatrix(pos, dir, cube2LocalToWorld, cube2WorldToLocal); 
+/* 
+                if (cubeInfo.didHit && cubeInfo.dst < floorInfo.dst && cubeInfo.dst < cube2Info.dst)
                 {
                     return saturate(dot(cubeInfo.normal, dirToSun) * 0.5 + 0.5) * cubeCol;
+                }
+                else if (cube2Info.didHit && cube2Info.dst < floorInfo.dst &&  cube2Info.dst < cubeInfo.dst){
+                    return saturate(dot(cube2Info.normal, dirToSun) * 0.5 + 0.5) * cube2Col;
                 }
                 else if (floorInfo.didHit)
                 {
@@ -535,11 +612,11 @@ Shader "Fluid/Raymarching"
 
                     float3 shadowMap = Transmittance(CalculateDensityAlongRay(floorInfo.hitPoint, _WorldSpaceLightPos0, lightStepSize * 2) * 2);
                     bool inShadow = RayBoxWithMatrix(floorInfo.hitPoint, dirToSun, cubeLocalToWorld, cubeWorldToLocal).didHit;
-                    if (inShadow) shadowMap *= 0.2;
+                    bool inShadow2 = RayBoxWithMatrix(floorInfo.hitPoint, dirToSun, cube2LocalToWorld, cube2WorldToLocal).didHit;
+                    if (inShadow || inShadow2) shadowMap *= 0.2;
                     return tileCol * shadowMap;
                 }
-
-                return SampleSky(dir);
+                return SampleSky(dir); */
             }
 
             // Crude anti-aliasing
@@ -550,8 +627,10 @@ Shader "Fluid/Raymarching"
                 float aa = 0.01;
 
                 float3 sum = 0;
+                // [loop]
                 for (int ox = -1; ox <= 1; ox++)
                 {
+                    // [loop]
                     for (int oy = -1; oy <= 1; oy++)
                     {
                         float3 jitteredFocusPoint = (pos + dir) + (right * ox + up * oy) * 0.7 / _ScreenParams.x;
@@ -579,20 +658,56 @@ Shader "Fluid/Raymarching"
                 float3 transmittance = 1;
                 float3 light = 0;
 
+                // [loop]
                 for (int i = 0; i < numRefractions; i++)
                 {
                     float densityStepSize = lightStepSize * (i + 1); // increase step size with each iteration
                     bool searchForNextFluidEntryPoint = !travellingThroughFluid;
 
-                    HitInfo cubeHit = RayBoxWithMatrix(rayPos, rayDir, cubeLocalToWorld, cubeWorldToLocal);
-                    SurfaceInfo surfaceInfo = FindNextSurface(rayPos, rayDir, searchForNextFluidEntryPoint, rngState, i == 0 ? 1 : 0, cubeHit.dst);
-                    bool useCubeHit = cubeHit.didHit && cubeHit.dst < length(surfaceInfo.pos - rayPos);
+                    HitInfo cubeHits[MAX_CUBES]; 
+                    // [loop]
+                    for (int j = 0; j < cubeCount; j++)
+                    {
+                        cubeHits[j] = RayBoxWithMatrix(rayPos, rayDir, cubesLocalToWorld[j], cubesWorldToLocal[j]);
+
+                    }
+                    float minDist = GetMinDist(cubeHits);
+                    // HitInfo cubeHit = RayBoxWithMatrix(rayPos, rayDir, cubeLocalToWorld, cubeWorldToLocal);
+                    // HitInfo cube2Hit = RayBoxWithMatrix(rayPos, rayDir, cube2LocalToWorld, cube2WorldToLocal); 
+                    
+                    SurfaceInfo surfaceInfo = FindNextSurface(rayPos, rayDir, searchForNextFluidEntryPoint, rngState, i == 0 ? 1 : 0, GetMinDist(cubeHits));
+                    bool useCubeHits[MAX_CUBES]; 
+                    // [loop]
+                    for (int j = 0; j < cubeCount; j++)
+                    {
+                        useCubeHits[j] = cubeHits[j].didHit && cubeHits[j].dst <length(surfaceInfo.pos - rayPos) && cubeHits[j].dst == minDist;
+                    }
+                    //bool useCubeHit = cubeHit.didHit && cubeHit.dst < length(surfaceInfo.pos - rayPos);
+                    //bool useCubeHit2 = cube2Hit.didHit && cube2Hit.dst < length(surfaceInfo.pos - rayPos);
                     if (!surfaceInfo.foundSurface) break;
+ 
 
                     transmittance *= Transmittance(surfaceInfo.densityAlongRay);
 
                     // Hit test cube
-                    if (useCubeHit)
+                    bool hitCube = false;
+                    // [loop]
+                    for (int j = 0; j < cubeCount; j++)
+                    {
+                        if(useCubeHits[j]){
+                            if(travellingThroughFluid){
+                                transmittance *= Transmittance(CalculateDensityAlongRay(cubeHits[j].hitPoint, cubeHits[j].normal, densityStepSize));
+                            }
+                            light += Light(rayPos, rayDir) * transmittance;
+                            transmittance = 0;
+                            hitCube = true;
+                            break;
+                           
+                        }
+                        
+                    }
+                    if (hitCube) break;
+                    /* if (useCubeHit)
                     {
                         if (travellingThroughFluid)
                         {
@@ -601,7 +716,17 @@ Shader "Fluid/Raymarching"
                         light += Light(rayPos, rayDir) * transmittance;
                         transmittance = 0;
                         break;
-                    }
+                    } 
+                    if(useCubeHit2) //could be else if 
+                    {
+                        if (travellingThroughFluid)
+                        {
+                            transmittance *= Transmittance(CalculateDensityAlongRay(cube2Hit.hitPoint, cube2Hit.normal, densityStepSize)); 
+                        }
+                        light += Light(rayPos, rayDir) * transmittance;
+                        transmittance = 0;
+                        break;
+                    } */
 
                     // If light hits the floor it will be scattered in all directions (in hemisphere)
                     // Not sure how to handle this in real-time, so just break out of loop here
@@ -616,6 +741,7 @@ Shader "Fluid/Raymarching"
                     // Indicies of refraction
                     float iorA = travellingThroughFluid ? indexOfRefraction : iorAir;
                     float iorB =travellingThroughFluid ? iorAir : indexOfRefraction;
+
 
                     // Calculate reflection and refraction, and choose which path to follow
                     LightResponse lightResponse = CalculateReflectionAndRefraction(rayDir, normal, iorA, iorB);
@@ -637,7 +763,6 @@ Shader "Fluid/Raymarching"
                 // Approximate remaining path
                 float densityRemainder = CalculateDensityAlongRay(rayPos, rayDir, lightStepSize);
                 light += Light(rayPos, rayDir) * transmittance * Transmittance(densityRemainder);
-
                 return light;
             }
 
