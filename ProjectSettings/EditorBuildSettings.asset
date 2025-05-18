@@ -4,5 +4,12 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
-  m_configObjects: {}
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Fluid MarchingCubes.unity
+    guid: d180a7de4a7f02e41ae4f3ab7323efe9
+  m_configObjects:
+    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 1b70b7faa656cb04087067d862f811e1, type: 3}
+    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 5e68a9bbdd7eefa44ac61a6775919717, type: 2}
+    com.unity.xr.openxr.settings4: {fileID: 11400000, guid: fd4805dc238b55e4297dd255c85064f8, type: 2}
+  m_UseUCBPForAssetBundles: 0
