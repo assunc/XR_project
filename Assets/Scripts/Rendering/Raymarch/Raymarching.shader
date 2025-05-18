@@ -77,8 +77,9 @@ Shader "Fluid/Raymarching"
             // const float3 floorPos;
             // const float3 floorSize;
             
-            static const float3 cubeCol = float3(0.95, 0.3, 0.35);
-            static const float3 cube2Col = float3(0.35, 0.95, 0.35); 
+            static const float3 cubeCol = float3(0.69, 0.33, 0.12);
+            static const float3 cubeColLast = float3(0.53, 0.05, 0.12); 
+            static const float3 cubeColFloor = float3(0.19, 0.38, 0.12); 
             static const float iorAir = 1;
 
             struct HitInfo
@@ -545,9 +546,20 @@ Shader "Fluid/Raymarching"
                 float minDist = GetMinDist(cubeInfos);
                 // [loop]
                 for(int i= 0; i< cubeCount; i++){
-                    if(cubeInfos[i].didHit && cubeInfos[i].dst == minDist){
-                        return saturate(dot(cubeInfos[i].normal, dirToSun) * 0.5 + 0.5) * cubeCol;
+                    if(i == cubeCount-1){
+                        if(cubeInfos[i].didHit && cubeInfos[i].dst == minDist){
+                            return saturate(dot(cubeInfos[i].normal, dirToSun) * 0.5 + 0.5) * cubeColLast;
+                        }
+                    }else if( i == cubeCount-2){
+                        if(cubeInfos[i].didHit && cubeInfos[i].dst == minDist){
+                            return saturate(dot(cubeInfos[i].normal, dirToSun) * 0.5 + 0.5) * cubeColFloor;
+                        }
+                    }else{
+                        if(cubeInfos[i].didHit && cubeInfos[i].dst == minDist){
+                            return saturate(dot(cubeInfos[i].normal, dirToSun) * 0.5 + 0.5) * cubeCol;
+                        }
                     }
+                    
                 }
                 
                 // if(floorInfo.didHit && floorInfo.dst < minDist){
