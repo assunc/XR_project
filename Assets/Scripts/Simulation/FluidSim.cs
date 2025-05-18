@@ -499,14 +499,14 @@ namespace Seb.Fluid.Simulation
 			public float scale;
 		}
 
-		void OnDrawGizmos()
-		{
-			// Draw Bounds
-			var m = Gizmos.matrix;
-			Gizmos.matrix = transform.localToWorldMatrix;
-			Gizmos.color = new Color(0, 1, 0, 0.5f);
-			Gizmos.DrawWireCube(Vector3.zero, Vector3.one);
-			Gizmos.matrix = m;
-        }
+		// void OnDrawGizmos()
+		// {
+		// 	// Draw Bounds
+		// 	var m = Gizmos.matrix;
+		// 	Gizmos.matrix = transform.localToWorldMatrix;
+		// 	Gizmos.color = new Color(0, 1, 0, 0.5f);
+		// 	Gizmos.DrawWireCube(Vector3.zero, Vector3.one);
+		// 	Gizmos.matrix = m;
+        // }
 	}
 }

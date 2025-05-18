@@ -12,6 +12,6 @@ public class NewBehaviourScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.position = new float3(transform.position.x + (float)0.1*math.sin(t++*4*math.PI/180), transform.position.y, transform.position.z);
+        transform.position = new float3(transform.position.x, transform.position.y, transform.position.z  + (float)0.05*math.sin(t++*4*math.PI/180));
     }
 }

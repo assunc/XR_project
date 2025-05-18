@@ -140,13 +140,13 @@ namespace Seb.Fluid.Rendering
 			public float tileDarkOffset;
 			public Light light;
 		}
-		void OnDrawGizmos()
-		{
-			if (sim != null)
-			{
-				Gizmos.color = Color.red; // Or any color for comparison
-				Gizmos.DrawWireCube(sim.transform.position, sim.transform.localScale);
-			}
-		}
+		// void OnDrawGizmos()
+		// {
+		// 	if (sim != null)
+		// 	{
+		// 		Gizmos.color = Color.red; // Or any color for comparison
+		// 		Gizmos.DrawWireCube(sim.transform.position, sim.transform.localScale);
+		// 	}
+		// }
 	}
 }
