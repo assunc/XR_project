@@ -8,6 +8,9 @@ public class WallDoorController : MonoBehaviour
     public float rotationSpeed = 2f;         // Speed of rotation
     public bool wallIsOpen = false;
 
+    // Reference to the WallLiftTrigger component
+    public WallLiftTrigger wallLiftTrigger;
+
     private const byte TOTAL_DOOR_ACTIVATION_KEY_COUNT = 5;
     private byte keyCounterAct = 0;
     private Coroutine rotateRoutine;
@@ -28,6 +31,9 @@ public class WallDoorController : MonoBehaviour
                 wallPivot.localRotation,
                 Quaternion.Euler(openRotationEuler)
             ));
+            /* Move the wall on Y axis */
+            if (wallLiftTrigger != null)
+                wallLiftTrigger.TriggerLift();
         }
     }
 
