@@ -14,9 +14,12 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Fluid MarchingCubes.unity
     guid: d180a7de4a7f02e41ae4f3ab7323efe9
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/test.unity
     guid: 944641526231235488ba732c50f743a3
+  - enabled: 1
+    path: Assets/NotPass.unity
+    guid: 7137990ffdea1f84791abb8762eaf57c
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: f0b624448e66c484e8b8992444ced019, type: 2}
